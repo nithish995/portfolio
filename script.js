@@ -67,18 +67,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     mm.add("(max-width: 768px)", () => {
-        // MOBILE: Full-width background fade
-        gsap.set('.hero-image-overlay', { width: '100%', left: 0, right: 0, opacity: 1 });
+        // MOBILE: Image fades in at its final low opacity immediately.
+        // Then text + nav appear together, fast and smooth.
+        // Never expose the image at full brightness.
+        gsap.set('.hero-image-overlay', { width: '100%', left: 0, right: 0, opacity: 0 });
+        gsap.set('.hero-image-overlay img', { scale: 1.04 });
 
-        const tl = gsap.timeline();
-        tl.to('.hero-image-overlay img', { scale: 1, duration: 1.5, ease: 'power2.out' })
-            .to('.hero-image-overlay', { opacity: 0.2, duration: 1.5, ease: 'power2.inOut' }, "-=0.5")
-            .from('.main-nav', { y: -100, opacity: 0, duration: 1 }, "-=1")
-            .to('.hero-title, .hero-subtitle, .hero-cta-wrapper', { opacity: 1, duration: 0.5 }, "-=0.5")
-            .from('.hero-title .line', { y: 50, opacity: 0, duration: 0.8, stagger: 0.1 }, "-=0.5")
-            .from('.hero-subtitle', { y: 20, opacity: 0, duration: 0.8 }, "-=0.6")
-            .from('.hero-cta-wrapper', { y: 20, opacity: 0, duration: 0.8 }, "-=0.6")
-            // Release GSAP inline styles so CSS class transition can take over
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+        tl
+            // 1. Image fades in quietly at final muted opacity — 0.4s
+            .to('.hero-image-overlay', { opacity: 0.18, duration: 0.4, ease: 'power2.out' })
+            .to('.hero-image-overlay img', { scale: 1, duration: 0.5, ease: 'power2.out' }, '<')
+
+            // 2. Text lines appear immediately after — fast stagger
+            .from('.hero-title .line', { y: 40, opacity: 0, duration: 0.55, stagger: 0.1 }, '-=0.1')
+            .from('.hero-subtitle',    { y: 20, opacity: 0, duration: 0.5  }, '-=0.35')
+            .from('.hero-cta-wrapper', { y: 16, opacity: 0, duration: 0.45 }, '-=0.35')
+
+            // 3. Navbar slides in last — same beat as CTA finishing
+            .from('.main-nav', { y: -60, opacity: 0, duration: 0.45 }, '-=0.3')
+
+            // Release GSAP inline styles so CSS hide-on-scroll can take over
             .call(() => { gsap.set('.main-nav', { clearProps: 'all' }); });
     });
 
