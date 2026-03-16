@@ -39,6 +39,19 @@ body {
     /* Context for absolute positioning of background icons */
 }
 
+/* ─── Scroll Progress Bar ──────────────────────────────── */
+#scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-color), #60a5fa);
+    z-index: 9999;
+    transition: width 0.08s linear;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
 body.loading {
     opacity: 0;
 }
@@ -156,14 +169,18 @@ p {
     left: 0;
     width: 100%;
     padding: 20px 0;
-    /* Remove side padding, let container handle it */
     z-index: 2005;
-    /* Higher than mobile overlay (2000) */
     background: rgba(10, 10, 10, 0.9);
-    /* Slightly darker for better text contrast */
     backdrop-filter: blur(12px);
-    /* Increased blur */
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    /* Smooth hide/show transition */
+    transform: translateY(0);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hide nav when scrolling down */
+.main-nav.nav-hidden {
+    transform: translateY(-110%);
 }
 
 .nav-container {
@@ -248,26 +265,25 @@ p {
 .hero-image-overlay {
     position: absolute;
     top: 0;
-    right: 0;
-    /* Align to right for desktop animation default */
-    left: auto;
-    width: 100%;
+    left: 0;
+    right: auto;
+    /* Portrait image: occupy left 45% on desktop */
+    width: 45%;
     height: 100%;
     z-index: 1;
     pointer-events: none;
-    /* Base mask for blending the edge softly */
-    -webkit-mask-image: linear-gradient(to right, transparent, black 20%);
-    mask-image: linear-gradient(to right, transparent, black 20%);
+    /* Left edge solid black (matches bg), right edge fades into text */
+    -webkit-mask-image: linear-gradient(to left, transparent 0%, black 30%, black 85%, transparent 100%);
+    mask-image: linear-gradient(to left, transparent 0%, black 30%, black 85%, transparent 100%);
 }
 
 .hero-image-overlay img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.6;
-    /* Reduced opacity for better text contrast */
-    filter: grayscale(100%) contrast(120%) brightness(0.6);
-    /* Darker, moody */
+    object-position: top center;
+    opacity: 0.75;
+    filter: grayscale(100%) contrast(115%) brightness(0.55);
 }
 
 .hero-section .container {
@@ -282,13 +298,13 @@ p {
     /* Align text left */
 }
 
-/* Constrain text on desktop so it doesn't hit the image */
+/* Push text to right side on desktop so it sits beside the left-side image */
 @media (min-width: 769px) {
     .hero-section .container {
-        max-width: 65%;
-        /* Relaxed constraint */
-        margin-left: 5%;
-        /* Reduced offset */
+        max-width: 55%;
+        margin-left: auto;
+        margin-right: 5%;
+        align-items: flex-start;
     }
 }
 
@@ -855,7 +871,7 @@ p {
 /* CTA */
 .cta-section {
     text-align: center;
-    padding: 160px 0;
+    padding: 180px 0;
 }
 
 .cta-section h2 {
@@ -864,8 +880,11 @@ p {
 }
 
 .cta-section p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: var(--secondary-text);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.7;
 }
 
 /* Contact */
@@ -1081,6 +1100,11 @@ p {
 
 /* Pink */
 
+.brand-flask {
+    color: #a0a0a0 !important;
+    opacity: 1;
+}
+
 /* Hero background icons - Keep subtle but tinted */
 .hero-icon.brand-flutter {
     opacity: 0.1;
@@ -1106,8 +1130,8 @@ p {
 
 .skills-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 48px;
 }
 
 .skill-group h3 {
@@ -1149,6 +1173,73 @@ p {
 
 .skill-item:hover .skill-name {
     color: var(--text-color);
+}
+
+/* Proprietary note in client cards */
+.proprietary-note {
+    margin-top: 16px;
+    font-size: 0.8rem !important;
+    color: var(--secondary-text);
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* ============================================
+   Flat Project Card (Client Work - no image)
+   ============================================ */
+.project-card--flat {
+    position: relative !important;
+    /* override sticky */
+    top: auto !important;
+    margin-bottom: 0 !important;
+    max-height: none !important;
+    flex-direction: column !important;
+    overflow: visible !important;
+    box-shadow: none;
+}
+
+.project-card-banner {
+    width: 100%;
+    background: linear-gradient(135deg, #0f1a2e 0%, #0a1628 50%, #111827 100%);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 36px;
+    flex-shrink: 0;
+}
+
+.project-card-banner-icons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.project-card-banner-icons .tech-icon {
+    width: 32px;
+    height: 32px;
+    opacity: 0.9;
+}
+
+.project-card-category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--secondary-text);
+    font-family: var(--font-body);
+    opacity: 0.7;
+}
+
+/* Desktop: make flat card content wider */
+@media screen and (min-width: 1024px) {
+    .project-card--flat .project-content {
+        width: 100% !important;
+        padding: 40px 50px !important;
+    }
+
+    .project-card--flat .project-content h3 {
+        font-size: 2.2rem !important;
+    }
 }
 
 /* Project Cards Icon Row */
